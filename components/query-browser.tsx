@@ -44,6 +44,8 @@ function getPillClasses(variant: PillVariant, active = false) {
   }
 
   switch (variant) {
+    case "contenttype":
+      return "border-[#8c7bb8] bg-[#2c2540] text-[#eee7ff]"
     case "domain":
       return "border-[#6e8d74] bg-[#253629] text-[#e2f0e0]"
     case "usecase":
@@ -58,8 +60,6 @@ function getPillClasses(variant: PillVariant, active = false) {
       return "border-[#8f7b54] bg-[#352d1d] text-[#f4e8c8]"
     case "detail":
       return "border-[#6a6a6a] bg-[#242424] text-[#efefef]"
-    case "contenttype":
-      return "border-[#8c7bb8] bg-[#2c2540] text-[#eee7ff]"  
     default:
       return "border-[#5f715e] bg-[#1a231b] text-[#d7e2ce]"
   }
@@ -124,6 +124,7 @@ function SectionLabel({
     </div>
   )
 }
+
 function CountPill({
   label,
   count,
@@ -237,12 +238,18 @@ function FilterGroup({
 
 export function QueryBrowser({ queries }: Props) {
   const [search, setSearch] = useState("")
+  const [selectedContentTypes, setSelectedContentTypes] = useState<string[]>([])
   const [selectedDomains, setSelectedDomains] = useState<string[]>([])
   const [selectedUseCases, setSelectedUseCases] = useState<string[]>([])
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
   const [selectedDataSources, setSelectedDataSources] = useState<string[]>([])
-  const [selectedContentTypes, setSelectedContentTypes] = useState<string[]>([])
   const [sortBy, setSortBy] = useState<SortOption>("title-asc")
+
+  const contentTypeOptions = useMemo(() => {
+    return Array.from(new Set(queries.flatMap((q) => q.contentTypes))).sort(
+      (a, b) => a.localeCompare(b)
+    )
+  }, [queries])
 
   const domainOptions = useMemo(() => {
     return Array.from(new Set(queries.flatMap((q) => q.domains))).sort((a, b) =>
@@ -255,12 +262,6 @@ export function QueryBrowser({ queries }: Props) {
       a.localeCompare(b)
     )
   }, [queries])
-
-  const contentTypeOptions = useMemo(() => {
-  return Array.from(new Set(queries.flatMap((q) => q.contentTypes))).sort(
-    (a, b) => a.localeCompare(b)
-  )
-}, [queries])
 
   const platformOptions = useMemo(() => {
     return Array.from(new Set(queries.flatMap((q) => q.platforms))).sort((a, b) =>
@@ -296,11 +297,11 @@ export function QueryBrowser({ queries }: Props) {
         q.title,
         q.description,
         q.query,
+        q.contentTypes.join(" "),
         q.tags.join(" "),
         q.domains.join(" "),
         q.useCases.join(" "),
         q.platforms.join(" "),
-        q.contentTypes.join(" "),
         q.dataSources.join(" "),
         q.mitreTechniques?.join(" ") ?? "",
         q.author ?? "",
@@ -328,10 +329,10 @@ export function QueryBrowser({ queries }: Props) {
   }, [
     queries,
     search,
+    selectedContentTypes,
     selectedDomains,
     selectedUseCases,
     selectedPlatforms,
-    selectedContentTypes,
     selectedDataSources,
     sortBy,
   ])
@@ -345,6 +346,7 @@ export function QueryBrowser({ queries }: Props) {
         q.title,
         q.description,
         q.query,
+        q.contentTypes.join(" "),
         q.tags.join(" "),
         q.domains.join(" "),
         q.useCases.join(" "),
@@ -359,15 +361,15 @@ export function QueryBrowser({ queries }: Props) {
 
       if (!text.includes(search.toLowerCase())) return false
 
+      const contentTypeMatch =
+        group === "contentTypes"
+          ? q.contentTypes.includes(value)
+          : matches(selectedContentTypes, q.contentTypes)
+
       const domainMatch =
         group === "domains"
           ? q.domains.includes(value)
           : matches(selectedDomains, q.domains)
-
-        const contentTypeMatch =
-        group === "contentTypes"
-        ? q.contentTypes.includes(value)
-        : matches(selectedContentTypes, q.contentTypes)
 
       const useCaseMatch =
         group === "useCases"
@@ -384,17 +386,25 @@ export function QueryBrowser({ queries }: Props) {
           ? q.dataSources.includes(value)
           : matches(selectedDataSources, q.dataSources)
 
-      return contentTypeMatch && domainMatch && useCaseMatch && platformMatch && dataSourceMatch
+      return (
+        contentTypeMatch &&
+        domainMatch &&
+        useCaseMatch &&
+        platformMatch &&
+        dataSourceMatch
+      )
     }).length
   }
 
   const activeFilters = [
     ...selectedContentTypes.map((x) => ({
-  key: `content-${x}`,
-  label: `Content Type: ${formatLabel(x)}`,
-  remove: () =>
-    setSelectedContentTypes((current) => current.filter((item) => item !== x)),
-})),
+      key: `content-${x}`,
+      label: `Content Type: ${formatLabel(x)}`,
+      remove: () =>
+        setSelectedContentTypes((current) =>
+          current.filter((item) => item !== x)
+        ),
+    })),
     ...selectedDomains.map((x) => ({
       key: `domain-${x}`,
       label: `Domain: ${formatLabel(x)}`,
@@ -427,14 +437,17 @@ export function QueryBrowser({ queries }: Props) {
   return (
     <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
       <aside className="space-y-6 rounded-[28px] border border-white/10 bg-[#1a211b]/85 p-5 shadow-2xl">
-      <FilterGroup
-  title="Content Types"
-  variant="contenttype"
-  options={contentTypeOptions}
-  selected={selectedContentTypes}
-  toggle={(v) => toggleValue(v, selectedContentTypes, setSelectedContentTypes)}
-  getCount={(v) => getCountsForGroup("contentTypes", v)}
-/>
+        <FilterGroup
+          title="Content Types"
+          variant="contenttype"
+          options={contentTypeOptions}
+          selected={selectedContentTypes}
+          toggle={(v) =>
+            toggleValue(v, selectedContentTypes, setSelectedContentTypes)
+          }
+          getCount={(v) => getCountsForGroup("contentTypes", v)}
+        />
+
         <FilterGroup
           title="Domains"
           variant="domain"
@@ -592,9 +605,9 @@ export function QueryBrowser({ queries }: Props) {
                       <SectionLabel>Summary</SectionLabel>
                       <div className="flex flex-wrap gap-2">
                         {q.contentTypes.map((x) => (
-                        <Pill key={`${q.id}-content-${x}`} variant="contenttype">
+                          <Pill key={`${q.id}-content-${x}`} variant="contenttype">
                             {formatLabel(x)}
-                        </Pill>
+                          </Pill>
                         ))}
                         {q.domains.map((x) => (
                           <Pill key={`${q.id}-domain-${x}`} variant="domain">

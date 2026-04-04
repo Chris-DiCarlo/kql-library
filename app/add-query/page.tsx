@@ -16,6 +16,7 @@ export default function AddQueryPage() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [query, setQuery] = useState("")
+  const [contentTypes, setContentTypes] = useState("")
   const [domains, setDomains] = useState("")
   const [useCases, setUseCases] = useState("")
   const [platforms, setPlatforms] = useState("")
@@ -24,7 +25,6 @@ export default function AddQueryPage() {
   const [mitreTechniques, setMitreTechniques] = useState("")
   const [severity, setSeverity] = useState<Severity>("")
   const [author, setAuthor] = useState("")
-  const [contentTypes, setContentTypes] = useState("")
 
   const fileName = useMemo(() => {
     return `${toSlug(title || "new-query")}.json`
@@ -54,6 +54,7 @@ export default function AddQueryPage() {
     title,
     description,
     query,
+    contentTypes,
     domains,
     useCases,
     platforms,
@@ -84,63 +85,67 @@ export default function AddQueryPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
-<div className="mb-8 rounded-[28px] border border-white/10 bg-[#1c241d]/70 p-8 shadow-2xl backdrop-blur">
-  <h1 className="mb-2 text-4xl font-bold text-[#eef3e7]">Add Query</h1>
-  <p className="text-[#b8c3ad]">
-    Fill out the form and generate a JSON file for your query.
-  </p>
-</div>
-<div className="mb-8 rounded-2xl border border-[#4e614e] bg-[#182018] p-5">
-  <h2 className="mb-4 text-lg font-semibold text-[#eef3e7]">
-    How To Think About Each Field
-  </h2>
-
-  <div className="space-y-4 text-sm text-[#c0cdb7]">
-    <div>
-      <div className="font-semibold text-[#b8a7e6]">Content Types</div>
-      <div>What kind of artifact this is.</div>
-      <div className="mt-1 text-[#9cab91]">
-        KQL, PowerShell, YARA, Sigma, Bash, Splunk, Regex
+      <div className="mb-8 rounded-[28px] border border-white/10 bg-[#1c241d]/70 p-8 shadow-2xl backdrop-blur">
+        <h1 className="mb-2 text-4xl font-bold text-[#eef3e7]">Add Query</h1>
+        <p className="text-[#b8c3ad]">
+          Fill out the form and generate a JSON file for your query.
+        </p>
       </div>
-    </div>
 
-    <div>
-      <div className="font-semibold text-[#7fa787]">Domains</div>
-      <div>What security area it belongs to.</div>
-      <div className="mt-1 text-[#9cab91]">
-        Identity, Email, Endpoint, Network, Cloud
-      </div>
-    </div>
+      <div className="mb-8 rounded-2xl border border-[#4e614e] bg-[#182018] p-5">
+        <h2 className="mb-4 text-lg font-semibold text-[#eef3e7]">
+          How To Think About Each Field
+        </h2>
 
-    <div>
-      <div className="font-semibold text-[#b7c27a]">Use Cases</div>
-      <div>What you use it for.</div>
-      <div className="mt-1 text-[#9cab91]">
-        Detection, Hunting, Triage, Investigation
-      </div>
-    </div>
+        <div className="space-y-4 text-sm text-[#c0cdb7]">
+          <div>
+            <div className="font-semibold text-[#b8a7e6]">Content Types</div>
+            <div>What kind of artifact this is.</div>
+            <div className="mt-1 text-[#9cab91]">
+              KQL, PowerShell, YARA, Sigma, Bash, Splunk, Regex
+            </div>
+          </div>
 
-    <div>
-      <div className="font-semibold text-[#8fa8c7]">Platforms</div>
-      <div>Where it applies.</div>
-      <div className="mt-1 text-[#9cab91]">
-        Sentinel, Defender, Windows, Linux, Entra, Zscaler
-      </div>
-    </div>
+          <div>
+            <div className="font-semibold text-[#7fa787]">Domains</div>
+            <div>What security area it belongs to.</div>
+            <div className="mt-1 text-[#9cab91]">
+              Identity, Email, Endpoint, Network, Cloud
+            </div>
+          </div>
 
-    <div>
-      <div className="font-semibold text-[#c59ad9]">Data Sources</div>
-      <div>What telemetry or source it uses.</div>
-      <div className="mt-1 text-[#9cab91]">
-        SigninLogs, DeviceProcessEvents, Files, Registry, PowerShell
+          <div>
+            <div className="font-semibold text-[#b7c27a]">Use Cases</div>
+            <div>What you use it for.</div>
+            <div className="mt-1 text-[#9cab91]">
+              Detection, Hunting, Triage, Investigation
+            </div>
+          </div>
+
+          <div>
+            <div className="font-semibold text-[#8fa8c7]">Platforms</div>
+            <div>Where it applies.</div>
+            <div className="mt-1 text-[#9cab91]">
+              Sentinel, Defender, Windows, Linux, Entra, Zscaler
+            </div>
+          </div>
+
+          <div>
+            <div className="font-semibold text-[#c59ad9]">Data Sources</div>
+            <div>What telemetry or source it uses.</div>
+            <div className="mt-1 text-[#9cab91]">
+              SigninLogs, DeviceProcessEvents, Files, Registry, PowerShell
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
+
       <div className="grid gap-8 lg:grid-cols-2">
         <section className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium">Title</label>
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
+              Title
+            </label>
             <input
               className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               value={title}
@@ -150,7 +155,9 @@ export default function AddQueryPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">Description</label>
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
+              Description
+            </label>
             <textarea
               className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               rows={3}
@@ -161,28 +168,32 @@ export default function AddQueryPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">Query</label>
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
+              Query
+            </label>
             <textarea
-              className="w-full rounded-xl border p-3 font-mono"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 font-mono text-[#eef3e7] placeholder:text-[#8f9b85]"
               rows={10}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={"SigninLogs\n| take 10"}
             />
           </div>
-            <div>
-            <label className="mb-1 block text-sm font-medium">
-                Content Types (comma separated)
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
+              Content Types (comma separated)
             </label>
             <input
-                className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
-                value={contentTypes}
-                onChange={(e) => setContentTypes(e.target.value)}
-                placeholder="kql,powershell"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
+              value={contentTypes}
+              onChange={(e) => setContentTypes(e.target.value)}
+              placeholder="kql,powershell"
             />
-            </div>
+          </div>
+
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
               Domains (comma separated)
             </label>
             <input
@@ -194,7 +205,7 @@ export default function AddQueryPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
               Use Cases (comma separated)
             </label>
             <input
@@ -206,7 +217,7 @@ export default function AddQueryPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
               Platforms (comma separated)
             </label>
             <input
@@ -218,7 +229,7 @@ export default function AddQueryPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
               Data Sources (comma separated)
             </label>
             <input
@@ -230,7 +241,7 @@ export default function AddQueryPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
               Tags (comma separated)
             </label>
             <input
@@ -242,7 +253,7 @@ export default function AddQueryPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
               MITRE Techniques (comma separated)
             </label>
             <input
@@ -254,9 +265,11 @@ export default function AddQueryPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">Severity</label>
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
+              Severity
+            </label>
             <select
-              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7]"
               value={severity}
               onChange={(e) => setSeverity(e.target.value as Severity)}
             >
@@ -268,7 +281,9 @@ export default function AddQueryPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">Author</label>
+            <label className="mb-1 block text-sm font-medium text-[#eef3e7]">
+              Author
+            </label>
             <input
               className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               value={author}
@@ -280,7 +295,9 @@ export default function AddQueryPage() {
 
         <section>
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold">Generated JSON</h2>
+            <h2 className="text-xl font-semibold text-[#eef3e7]">
+              Generated JSON
+            </h2>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -292,20 +309,20 @@ export default function AddQueryPage() {
               <button
                 type="button"
                 onClick={handleDownload}
-                className="rounded-xl border px-4 py-2 text-sm"
+                className="rounded-xl border border-[#556b57] bg-[#243025] px-4 py-2 text-sm text-[#eef3e7] transition hover:bg-[#314034]"
               >
                 Download JSON
               </button>
             </div>
           </div>
 
-          <div className="mb-3 text-sm text-muted-foreground">
+          <div className="mb-3 text-sm text-[#9cab91]">
             File name: {fileName}
           </div>
 
-<pre className="overflow-x-auto rounded-2xl border border-[#334235] bg-[#0d120e] p-4 text-sm text-[#dfe8d5]">
-  <code>{jsonOutput}</code>
-</pre>
+          <pre className="overflow-x-auto rounded-2xl border border-[#334235] bg-[#0d120e] p-4 text-sm text-[#dfe8d5]">
+            <code>{jsonOutput}</code>
+          </pre>
         </section>
       </div>
     </main>
