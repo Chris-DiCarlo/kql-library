@@ -82,17 +82,19 @@ export default function AddQueryPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
-      <h1 className="mb-2 text-4xl font-bold">Add Query</h1>
-      <p className="mb-8 text-muted-foreground">
-        Fill out the form and generate a JSON file for your query.
-      </p>
+<div className="mb-8 rounded-[28px] border border-white/10 bg-[#1c241d]/70 p-8 shadow-2xl backdrop-blur">
+  <h1 className="mb-2 text-4xl font-bold text-[#eef3e7]">Add Query</h1>
+  <p className="text-[#b8c3ad]">
+    Fill out the form and generate a JSON file for your query.
+  </p>
+</div>
 
       <div className="grid gap-8 lg:grid-cols-2">
         <section className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium">Title</label>
             <input
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Impossible Travel Sign-ins"
@@ -102,7 +104,7 @@ export default function AddQueryPage() {
           <div>
             <label className="mb-1 block text-sm font-medium">Description</label>
             <textarea
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -126,7 +128,7 @@ export default function AddQueryPage() {
               Domains (comma separated)
             </label>
             <input
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               value={domains}
               onChange={(e) => setDomains(e.target.value)}
               placeholder="identity,email"
@@ -138,7 +140,7 @@ export default function AddQueryPage() {
               Use Cases (comma separated)
             </label>
             <input
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               value={useCases}
               onChange={(e) => setUseCases(e.target.value)}
               placeholder="detection,hunting"
@@ -150,7 +152,7 @@ export default function AddQueryPage() {
               Platforms (comma separated)
             </label>
             <input
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               value={platforms}
               onChange={(e) => setPlatforms(e.target.value)}
               placeholder="sentinel,entra"
@@ -162,7 +164,7 @@ export default function AddQueryPage() {
               Data Sources (comma separated)
             </label>
             <input
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               value={dataSources}
               onChange={(e) => setDataSources(e.target.value)}
               placeholder="SigninLogs"
@@ -174,7 +176,7 @@ export default function AddQueryPage() {
               Tags (comma separated)
             </label>
             <input
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="identity,signin,anomaly"
@@ -186,7 +188,7 @@ export default function AddQueryPage() {
               MITRE Techniques (comma separated)
             </label>
             <input
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               value={mitreTechniques}
               onChange={(e) => setMitreTechniques(e.target.value)}
               placeholder="T1078,T1110"
@@ -196,7 +198,7 @@ export default function AddQueryPage() {
           <div>
             <label className="mb-1 block text-sm font-medium">Severity</label>
             <select
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               value={severity}
               onChange={(e) => setSeverity(e.target.value as Severity)}
             >
@@ -210,7 +212,7 @@ export default function AddQueryPage() {
           <div>
             <label className="mb-1 block text-sm font-medium">Author</label>
             <input
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
               placeholder="Chris"
@@ -225,7 +227,7 @@ export default function AddQueryPage() {
               <button
                 type="button"
                 onClick={handleCopy}
-                className="rounded-xl border px-4 py-2 text-sm"
+                className="rounded-xl border border-[#556b57] bg-[#243025] px-4 py-2 text-sm text-[#eef3e7] transition hover:bg-[#314034]"
               >
                 Copy JSON
               </button>
@@ -243,9 +245,9 @@ export default function AddQueryPage() {
             File name: {fileName}
           </div>
 
-          <pre className="overflow-x-auto rounded-2xl bg-zinc-950 p-4 text-sm text-zinc-100">
-            <code>{jsonOutput}</code>
-          </pre>
+<pre className="overflow-x-auto rounded-2xl border border-[#334235] bg-[#0d120e] p-4 text-sm text-[#dfe8d5]">
+  <code>{jsonOutput}</code>
+</pre>
         </section>
       </div>
     </main>

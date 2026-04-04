@@ -33,18 +33,21 @@ function FilterGroup({
 }) {
   return (
     <div>
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#9cab91]">
         {title}
       </h3>
       <div className="flex flex-wrap gap-2">
         {options.map((item) => (
           <button key={item} type="button" onClick={() => toggle(item)}>
-            <Badge
-              variant={selected.includes(item) ? "default" : "outline"}
-              className="capitalize"
+            <span
+              className={`inline-flex rounded-full border px-3 py-1 text-sm capitalize transition ${
+                selected.includes(item)
+                  ? "border-[#70886e] bg-[#415540] text-[#eef3e7]"
+                  : "border-[#445443] bg-[#1a221b] text-[#b8c3ad] hover:bg-[#253027]"
+              }`}
             >
               {item}
-            </Badge>
+            </span>
           </button>
         ))}
       </div>
@@ -66,7 +69,7 @@ function CopyButton({ query }: { query: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm hover:bg-muted"
+      className="inline-flex items-center gap-2 rounded-xl border border-[#556b57] bg-[#243025] px-3 py-2 text-sm text-[#eef3e7] transition hover:bg-[#314034]"
     >
       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
       {copied ? "Copied" : "Copy"}
@@ -82,9 +85,9 @@ export function QueryBrowser({ queries }: Props) {
   const [selectedDataSources, setSelectedDataSources] = useState<string[]>([])
 
   const dataSourceOptions = useMemo(() => {
-    return Array.from(
-      new Set(queries.flatMap((q) => q.dataSources))
-    ).sort((a, b) => a.localeCompare(b))
+    return Array.from(new Set(queries.flatMap((q) => q.dataSources))).sort((a, b) =>
+      a.localeCompare(b)
+    )
   }, [queries])
 
   function toggleValue(
@@ -142,32 +145,26 @@ export function QueryBrowser({ queries }: Props) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
-      <aside className="space-y-6 rounded-3xl border bg-white p-5 shadow-sm dark:bg-zinc-950">
+      <aside className="space-y-6 rounded-[28px] border border-white/10 bg-[#1c241d]/75 p-5 shadow-2xl backdrop-blur">
         <FilterGroup
           title="Domains"
           options={domainOptions}
           selected={selectedDomains}
-          toggle={(value) =>
-            toggleValue(value, selectedDomains, setSelectedDomains)
-          }
+          toggle={(value) => toggleValue(value, selectedDomains, setSelectedDomains)}
         />
 
         <FilterGroup
           title="Use Cases"
           options={useCaseOptions}
           selected={selectedUseCases}
-          toggle={(value) =>
-            toggleValue(value, selectedUseCases, setSelectedUseCases)
-          }
+          toggle={(value) => toggleValue(value, selectedUseCases, setSelectedUseCases)}
         />
 
         <FilterGroup
           title="Platforms"
           options={platformOptions}
           selected={selectedPlatforms}
-          toggle={(value) =>
-            toggleValue(value, selectedPlatforms, setSelectedPlatforms)
-          }
+          toggle={(value) => toggleValue(value, selectedPlatforms, setSelectedPlatforms)}
         />
 
         <FilterGroup
@@ -189,7 +186,7 @@ export function QueryBrowser({ queries }: Props) {
               setSelectedDataSources([])
               setSearch("")
             }}
-            className="text-sm text-muted-foreground underline underline-offset-4"
+            className="text-sm text-[#9cab91] underline underline-offset-4"
           >
             Clear all filters
           </button>
@@ -198,16 +195,16 @@ export function QueryBrowser({ queries }: Props) {
 
       <section>
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-3.5 h-4 w-4 text-[#8f9b85]" />
           <Input
             placeholder="Search title, tags, table, platform, MITRE, or query text..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-11 rounded-2xl pl-9"
+            className="h-11 rounded-2xl border-[#445443] bg-[#182018] pl-9 text-[#eef3e7] placeholder:text-[#8f9b85]"
           />
         </div>
 
-        <div className="mb-4 text-sm text-muted-foreground">
+        <div className="mb-4 text-sm text-[#9cab91]">
           {filtered.length} quer{filtered.length === 1 ? "y" : "ies"} found
         </div>
 
@@ -216,22 +213,22 @@ export function QueryBrowser({ queries }: Props) {
             <AccordionItem
               key={item.id}
               value={item.id}
-              className="rounded-2xl border px-4"
+              className="rounded-2xl border border-white/10 bg-[#1a221b]/80 px-4 shadow-lg"
             >
               <AccordionTrigger className="hover:no-underline">
                 <div className="w-full pr-4 text-left">
                   <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <span className="text-base font-semibold">{item.title}</span>
+                    <span className="text-base font-semibold text-[#eef3e7]">
+                      {item.title}
+                    </span>
                     {item.severity && (
-                      <Badge variant="outline" className="capitalize">
+                      <Badge variant="outline" className="capitalize border-[#556b57] text-[#c7d3bc]">
                         {item.severity}
                       </Badge>
                     )}
                   </div>
 
-                  <p className="mb-3 text-sm text-muted-foreground">
-                    {item.description}
-                  </p>
+                  <p className="mb-3 text-sm text-[#b8c3ad]">{item.description}</p>
 
                   <div className="flex flex-wrap gap-2">
                     {item.domains.map((x) => (
@@ -276,7 +273,7 @@ export function QueryBrowser({ queries }: Props) {
                   <CopyButton query={item.query} />
                 </div>
 
-                <pre className="overflow-x-auto rounded-2xl bg-zinc-950 p-4 text-sm text-zinc-100">
+                <pre className="overflow-x-auto rounded-2xl border border-[#334235] bg-[#0d120e] p-4 text-sm text-[#dfe8d5]">
                   <code>{item.query}</code>
                 </pre>
               </AccordionContent>
