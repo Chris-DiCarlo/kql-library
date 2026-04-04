@@ -9,6 +9,7 @@ export function getAllQueries(): QueryItem[] {
 
   return files
     .filter((file) => file.endsWith(".json"))
+    .filter((file) => !file.startsWith("_"))
     .map((file) => {
       const fullPath = path.join(queriesDir, file)
       const raw = fs.readFileSync(fullPath, "utf8")
