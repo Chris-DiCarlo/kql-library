@@ -3,6 +3,7 @@ export type QueryItem = {
   title: string
   description: string
   query: string
+  contentTypes: string[]
   domains: string[]
   useCases: string[]
   platforms: string[]

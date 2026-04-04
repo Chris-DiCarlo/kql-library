@@ -24,6 +24,7 @@ export default function AddQueryPage() {
   const [mitreTechniques, setMitreTechniques] = useState("")
   const [severity, setSeverity] = useState<Severity>("")
   const [author, setAuthor] = useState("")
+  const [contentTypes, setContentTypes] = useState("")
 
   const fileName = useMemo(() => {
     return `${toSlug(title || "new-query")}.json`
@@ -35,6 +36,7 @@ export default function AddQueryPage() {
       title,
       description,
       query,
+      contentTypes: splitList(contentTypes),
       domains: splitList(domains),
       useCases: splitList(useCases),
       platforms: splitList(platforms),
@@ -88,7 +90,53 @@ export default function AddQueryPage() {
     Fill out the form and generate a JSON file for your query.
   </p>
 </div>
+<div className="mb-8 rounded-2xl border border-[#4e614e] bg-[#182018] p-5">
+  <h2 className="mb-4 text-lg font-semibold text-[#eef3e7]">
+    How To Think About Each Field
+  </h2>
 
+  <div className="space-y-4 text-sm text-[#c0cdb7]">
+    <div>
+      <div className="font-semibold text-[#b8a7e6]">Content Types</div>
+      <div>What kind of artifact this is.</div>
+      <div className="mt-1 text-[#9cab91]">
+        KQL, PowerShell, YARA, Sigma, Bash, Splunk, Regex
+      </div>
+    </div>
+
+    <div>
+      <div className="font-semibold text-[#7fa787]">Domains</div>
+      <div>What security area it belongs to.</div>
+      <div className="mt-1 text-[#9cab91]">
+        Identity, Email, Endpoint, Network, Cloud
+      </div>
+    </div>
+
+    <div>
+      <div className="font-semibold text-[#b7c27a]">Use Cases</div>
+      <div>What you use it for.</div>
+      <div className="mt-1 text-[#9cab91]">
+        Detection, Hunting, Triage, Investigation
+      </div>
+    </div>
+
+    <div>
+      <div className="font-semibold text-[#8fa8c7]">Platforms</div>
+      <div>Where it applies.</div>
+      <div className="mt-1 text-[#9cab91]">
+        Sentinel, Defender, Windows, Linux, Entra, Zscaler
+      </div>
+    </div>
+
+    <div>
+      <div className="font-semibold text-[#c59ad9]">Data Sources</div>
+      <div>What telemetry or source it uses.</div>
+      <div className="mt-1 text-[#9cab91]">
+        SigninLogs, DeviceProcessEvents, Files, Registry, PowerShell
+      </div>
+    </div>
+  </div>
+</div>
       <div className="grid gap-8 lg:grid-cols-2">
         <section className="space-y-4">
           <div>
@@ -122,7 +170,17 @@ export default function AddQueryPage() {
               placeholder={"SigninLogs\n| take 10"}
             />
           </div>
-
+            <div>
+            <label className="mb-1 block text-sm font-medium">
+                Content Types (comma separated)
+            </label>
+            <input
+                className="w-full rounded-xl border border-[#4f624f] bg-[#182018] p-3 text-[#eef3e7] placeholder:text-[#8f9b85]"
+                value={contentTypes}
+                onChange={(e) => setContentTypes(e.target.value)}
+                placeholder="kql,powershell"
+            />
+            </div>
           <div>
             <label className="mb-1 block text-sm font-medium">
               Domains (comma separated)

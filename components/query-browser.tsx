@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Search, Copy, Check, X } from "lucide-react"
+import { Search, Copy, Check, X, ArrowUpDown } from "lucide-react"
 import { QueryItem } from "@/lib/types"
 import { Input } from "@/components/ui/input"
 import {
@@ -15,9 +15,7 @@ type Props = {
   queries: QueryItem[]
 }
 
-const domainOptions = ["identity", "email", "endpoint", "network", "cloud"]
-const useCaseOptions = ["detection", "hunting", "triage", "investigation"]
-const platformOptions = ["sentinel", "defender", "entra", "zscaler", "m365"]
+type SortOption = "title-asc" | "title-desc"
 
 function formatLabel(value: string) {
   return value
@@ -31,6 +29,7 @@ function formatLabel(value: string) {
 
 type PillVariant =
   | "default"
+  | "contenttype"
   | "domain"
   | "usecase"
   | "platform"
@@ -59,6 +58,8 @@ function getPillClasses(variant: PillVariant, active = false) {
       return "border-[#8f7b54] bg-[#352d1d] text-[#f4e8c8]"
     case "detail":
       return "border-[#6a6a6a] bg-[#242424] text-[#efefef]"
+    case "contenttype":
+      return "border-[#8c7bb8] bg-[#2c2540] text-[#eee7ff]"  
     default:
       return "border-[#5f715e] bg-[#1a231b] text-[#d7e2ce]"
   }
@@ -90,18 +91,26 @@ function SectionLabel({
   variant = "default",
 }: {
   children: React.ReactNode
-  variant?: "default" | "domain" | "usecase" | "platform" | "datasource"
+  variant?:
+    | "default"
+    | "contenttype"
+    | "domain"
+    | "usecase"
+    | "platform"
+    | "datasource"
 }) {
   function getColor() {
     switch (variant) {
+      case "contenttype":
+        return "text-[#b8a7e6]"
       case "domain":
-        return "text-[#7fa787]" // green
+        return "text-[#7fa787]"
       case "usecase":
-        return "text-[#b7c27a]" // olive
+        return "text-[#b7c27a]"
       case "platform":
-        return "text-[#8fa8c7]" // blue
+        return "text-[#8fa8c7]"
       case "datasource":
-        return "text-[#c59ad9]" // purple
+        return "text-[#c59ad9]"
       default:
         return "text-[#9cab91]"
     }
@@ -115,7 +124,6 @@ function SectionLabel({
     </div>
   )
 }
-
 function CountPill({
   label,
   count,
@@ -205,13 +213,15 @@ function FilterGroup({
   selected: string[]
   toggle: (value: string) => void
   getCount: (value: string) => number
-  variant: "domain" | "usecase" | "platform" | "datasource"
-}){
+  variant: "contenttype" | "domain" | "usecase" | "platform" | "datasource"
+}) {
+  const visibleOptions = options.filter((item) => getCount(item) > 0)
+
   return (
     <div>
       <SectionLabel variant={variant}>{title}</SectionLabel>
       <div className="flex flex-wrap gap-2">
-        {options.map((item) => (
+        {visibleOptions.map((item) => (
           <CountPill
             key={item}
             label={item}
@@ -231,6 +241,32 @@ export function QueryBrowser({ queries }: Props) {
   const [selectedUseCases, setSelectedUseCases] = useState<string[]>([])
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
   const [selectedDataSources, setSelectedDataSources] = useState<string[]>([])
+  const [selectedContentTypes, setSelectedContentTypes] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState<SortOption>("title-asc")
+
+  const domainOptions = useMemo(() => {
+    return Array.from(new Set(queries.flatMap((q) => q.domains))).sort((a, b) =>
+      a.localeCompare(b)
+    )
+  }, [queries])
+
+  const useCaseOptions = useMemo(() => {
+    return Array.from(new Set(queries.flatMap((q) => q.useCases))).sort((a, b) =>
+      a.localeCompare(b)
+    )
+  }, [queries])
+
+  const contentTypeOptions = useMemo(() => {
+  return Array.from(new Set(queries.flatMap((q) => q.contentTypes))).sort(
+    (a, b) => a.localeCompare(b)
+  )
+}, [queries])
+
+  const platformOptions = useMemo(() => {
+    return Array.from(new Set(queries.flatMap((q) => q.platforms))).sort((a, b) =>
+      a.localeCompare(b)
+    )
+  }, [queries])
 
   const dataSourceOptions = useMemo(() => {
     return Array.from(new Set(queries.flatMap((q) => q.dataSources))).sort(
@@ -255,7 +291,7 @@ export function QueryBrowser({ queries }: Props) {
   }
 
   const filtered = useMemo(() => {
-    return queries.filter((q) => {
+    const results = queries.filter((q) => {
       const text = [
         q.title,
         q.description,
@@ -264,6 +300,7 @@ export function QueryBrowser({ queries }: Props) {
         q.domains.join(" "),
         q.useCases.join(" "),
         q.platforms.join(" "),
+        q.contentTypes.join(" "),
         q.dataSources.join(" "),
         q.mitreTechniques?.join(" ") ?? "",
         q.author ?? "",
@@ -274,11 +311,19 @@ export function QueryBrowser({ queries }: Props) {
 
       return (
         text.includes(search.toLowerCase()) &&
+        matches(selectedContentTypes, q.contentTypes) &&
         matches(selectedDomains, q.domains) &&
         matches(selectedUseCases, q.useCases) &&
         matches(selectedPlatforms, q.platforms) &&
         matches(selectedDataSources, q.dataSources)
       )
+    })
+
+    return [...results].sort((a, b) => {
+      if (sortBy === "title-desc") {
+        return b.title.localeCompare(a.title)
+      }
+      return a.title.localeCompare(b.title)
     })
   }, [
     queries,
@@ -286,11 +331,13 @@ export function QueryBrowser({ queries }: Props) {
     selectedDomains,
     selectedUseCases,
     selectedPlatforms,
+    selectedContentTypes,
     selectedDataSources,
+    sortBy,
   ])
 
   function getCountsForGroup(
-    group: "domains" | "useCases" | "platforms" | "dataSources",
+    group: "contentTypes" | "domains" | "useCases" | "platforms" | "dataSources",
     value: string
   ) {
     return queries.filter((q) => {
@@ -317,6 +364,11 @@ export function QueryBrowser({ queries }: Props) {
           ? q.domains.includes(value)
           : matches(selectedDomains, q.domains)
 
+        const contentTypeMatch =
+        group === "contentTypes"
+        ? q.contentTypes.includes(value)
+        : matches(selectedContentTypes, q.contentTypes)
+
       const useCaseMatch =
         group === "useCases"
           ? q.useCases.includes(value)
@@ -332,11 +384,17 @@ export function QueryBrowser({ queries }: Props) {
           ? q.dataSources.includes(value)
           : matches(selectedDataSources, q.dataSources)
 
-      return domainMatch && useCaseMatch && platformMatch && dataSourceMatch
+      return contentTypeMatch && domainMatch && useCaseMatch && platformMatch && dataSourceMatch
     }).length
   }
 
   const activeFilters = [
+    ...selectedContentTypes.map((x) => ({
+  key: `content-${x}`,
+  label: `Content Type: ${formatLabel(x)}`,
+  remove: () =>
+    setSelectedContentTypes((current) => current.filter((item) => item !== x)),
+})),
     ...selectedDomains.map((x) => ({
       key: `domain-${x}`,
       label: `Domain: ${formatLabel(x)}`,
@@ -369,47 +427,56 @@ export function QueryBrowser({ queries }: Props) {
   return (
     <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
       <aside className="space-y-6 rounded-[28px] border border-white/10 bg-[#1a211b]/85 p-5 shadow-2xl">
-<FilterGroup
-  title="Domains"
-  variant="domain"
-  options={domainOptions}
-  selected={selectedDomains}
-  toggle={(v) => toggleValue(v, selectedDomains, setSelectedDomains)}
-  getCount={(v) => getCountsForGroup("domains", v)}
+      <FilterGroup
+  title="Content Types"
+  variant="contenttype"
+  options={contentTypeOptions}
+  selected={selectedContentTypes}
+  toggle={(v) => toggleValue(v, selectedContentTypes, setSelectedContentTypes)}
+  getCount={(v) => getCountsForGroup("contentTypes", v)}
 />
+        <FilterGroup
+          title="Domains"
+          variant="domain"
+          options={domainOptions}
+          selected={selectedDomains}
+          toggle={(v) => toggleValue(v, selectedDomains, setSelectedDomains)}
+          getCount={(v) => getCountsForGroup("domains", v)}
+        />
 
-<FilterGroup
-  title="Use Cases"
-  variant="usecase"
-  options={useCaseOptions}
-  selected={selectedUseCases}
-  toggle={(v) => toggleValue(v, selectedUseCases, setSelectedUseCases)}
-  getCount={(v) => getCountsForGroup("useCases", v)}
-/>
+        <FilterGroup
+          title="Use Cases"
+          variant="usecase"
+          options={useCaseOptions}
+          selected={selectedUseCases}
+          toggle={(v) => toggleValue(v, selectedUseCases, setSelectedUseCases)}
+          getCount={(v) => getCountsForGroup("useCases", v)}
+        />
 
-<FilterGroup
-  title="Platforms"
-  variant="platform"
-  options={platformOptions}
-  selected={selectedPlatforms}
-  toggle={(v) => toggleValue(v, selectedPlatforms, setSelectedPlatforms)}
-  getCount={(v) => getCountsForGroup("platforms", v)}
-/>
+        <FilterGroup
+          title="Platforms"
+          variant="platform"
+          options={platformOptions}
+          selected={selectedPlatforms}
+          toggle={(v) => toggleValue(v, selectedPlatforms, setSelectedPlatforms)}
+          getCount={(v) => getCountsForGroup("platforms", v)}
+        />
 
-<FilterGroup
-  title="Data Sources"
-  variant="datasource"
-  options={dataSourceOptions}
-  selected={selectedDataSources}
-  toggle={(v) =>
-    toggleValue(v, selectedDataSources, setSelectedDataSources)
-  }
-  getCount={(v) => getCountsForGroup("dataSources", v)}
-/>
+        <FilterGroup
+          title="Data Sources"
+          variant="datasource"
+          options={dataSourceOptions}
+          selected={selectedDataSources}
+          toggle={(v) =>
+            toggleValue(v, selectedDataSources, setSelectedDataSources)
+          }
+          getCount={(v) => getCountsForGroup("dataSources", v)}
+        />
 
         <button
           type="button"
           onClick={() => {
+            setSelectedContentTypes([])
             setSelectedDomains([])
             setSelectedUseCases([])
             setSelectedPlatforms([])
@@ -423,14 +490,59 @@ export function QueryBrowser({ queries }: Props) {
       </aside>
 
       <section>
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-3.5 text-[#8f9b85]" size={16} />
-          <Input
-            placeholder="Search queries, tags, platforms, or tables..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-11 rounded-2xl border-[#4e614e] bg-[#182018] pl-9 text-[#eef3e7] placeholder:text-[#8f9b85]"
-          />
+        <div className="mb-4 grid gap-4 md:grid-cols-[1fr_auto]">
+          <div className="relative">
+            <Search className="absolute left-3 top-3.5 text-[#8f9b85]" size={16} />
+            <Input
+              placeholder="Search queries, tags, platforms, or tables..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-11 rounded-2xl border-[#4e614e] bg-[#182018] pl-9 text-[#eef3e7] placeholder:text-[#8f9b85]"
+            />
+          </div>
+
+          <div className="flex items-center">
+            <div className="inline-flex h-11 items-center gap-2 rounded-2xl border border-[#4e614e] bg-[#182018] px-4 text-sm text-[#d7e2ce]">
+              <ArrowUpDown size={16} />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="bg-transparent outline-none"
+              >
+                <option value="title-asc">Title A–Z</option>
+                <option value="title-desc">Title Z–A</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-4 grid gap-3 md:grid-cols-3">
+          <div className="rounded-2xl border border-[#4e614e] bg-[#182018] p-4">
+            <div className="text-xs uppercase tracking-[0.18em] text-[#9cab91]">
+              Total Queries
+            </div>
+            <div className="mt-2 text-2xl font-semibold text-[#eef3e7]">
+              {queries.length}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#4e614e] bg-[#182018] p-4">
+            <div className="text-xs uppercase tracking-[0.18em] text-[#9cab91]">
+              Filtered Results
+            </div>
+            <div className="mt-2 text-2xl font-semibold text-[#eef3e7]">
+              {filtered.length}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#4e614e] bg-[#182018] p-4">
+            <div className="text-xs uppercase tracking-[0.18em] text-[#9cab91]">
+              Active Filters
+            </div>
+            <div className="mt-2 text-2xl font-semibold text-[#eef3e7]">
+              {activeFilters.length + (search.trim() ? 1 : 0)}
+            </div>
+          </div>
         </div>
 
         {hasActiveFilters && (
@@ -458,10 +570,6 @@ export function QueryBrowser({ queries }: Props) {
           </div>
         )}
 
-        <div className="mb-4 text-sm text-[#9cab91]">
-          {filtered.length} {filtered.length === 1 ? "Query" : "Queries"}
-        </div>
-
         <Accordion type="single" collapsible className="space-y-3">
           {filtered.map((q) => (
             <AccordionItem
@@ -483,6 +591,11 @@ export function QueryBrowser({ queries }: Props) {
                     <div>
                       <SectionLabel>Summary</SectionLabel>
                       <div className="flex flex-wrap gap-2">
+                        {q.contentTypes.map((x) => (
+                        <Pill key={`${q.id}-content-${x}`} variant="contenttype">
+                            {formatLabel(x)}
+                        </Pill>
+                        ))}
                         {q.domains.map((x) => (
                           <Pill key={`${q.id}-domain-${x}`} variant="domain">
                             {formatLabel(x)}
