@@ -1,0 +1,14 @@
+{
+  "id": "unique-id-here",
+  "title": "Query title here",
+  "description": "What this query does",
+  "query": "TableName\n| take 10",
+  "domains": ["identity"],
+  "useCases": ["detection"],
+  "platforms": ["sentinel"],
+  "dataSources": ["SigninLogs"],
+  "tags": ["tag1", "tag2"],
+  "mitreTechniques": ["T1078"],
+  "severity": "medium",
+  "author": "Chris"
+}

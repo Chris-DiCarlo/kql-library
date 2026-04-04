@@ -1,0 +1,11 @@
+{
+  "id": "test-query",
+  "title": "Test Query",
+  "description": "This is a test query",
+  "query": "SigninLogs | take 10",
+  "domains": ["identity"],
+  "useCases": ["hunting"],
+  "platforms": ["sentinel"],
+  "dataSources": ["SigninLogs"],
+  "tags": ["test"]
+}
