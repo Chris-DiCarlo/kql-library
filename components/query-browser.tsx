@@ -85,9 +85,32 @@ function Pill({
   )
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({
+  children,
+  variant = "default",
+}: {
+  children: React.ReactNode
+  variant?: "default" | "domain" | "usecase" | "platform" | "datasource"
+}) {
+  function getColor() {
+    switch (variant) {
+      case "domain":
+        return "text-[#7fa787]" // green
+      case "usecase":
+        return "text-[#b7c27a]" // olive
+      case "platform":
+        return "text-[#8fa8c7]" // blue
+      case "datasource":
+        return "text-[#c59ad9]" // purple
+      default:
+        return "text-[#9cab91]"
+    }
+  }
+
   return (
-    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#9cab91]">
+    <div
+      className={`mb-2 text-xs font-semibold uppercase tracking-[0.18em] ${getColor()}`}
+    >
       {children}
     </div>
   )
@@ -175,16 +198,18 @@ function FilterGroup({
   selected,
   toggle,
   getCount,
+  variant,
 }: {
   title: string
   options: string[]
   selected: string[]
   toggle: (value: string) => void
   getCount: (value: string) => number
-}) {
+  variant: "domain" | "usecase" | "platform" | "datasource"
+}){
   return (
     <div>
-      <SectionLabel>{title}</SectionLabel>
+      <SectionLabel variant={variant}>{title}</SectionLabel>
       <div className="flex flex-wrap gap-2">
         {options.map((item) => (
           <CountPill
@@ -344,39 +369,43 @@ export function QueryBrowser({ queries }: Props) {
   return (
     <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
       <aside className="space-y-6 rounded-[28px] border border-white/10 bg-[#1a211b]/85 p-5 shadow-2xl">
-        <FilterGroup
-          title="Domains"
-          options={domainOptions}
-          selected={selectedDomains}
-          toggle={(v) => toggleValue(v, selectedDomains, setSelectedDomains)}
-          getCount={(v) => getCountsForGroup("domains", v)}
-        />
+<FilterGroup
+  title="Domains"
+  variant="domain"
+  options={domainOptions}
+  selected={selectedDomains}
+  toggle={(v) => toggleValue(v, selectedDomains, setSelectedDomains)}
+  getCount={(v) => getCountsForGroup("domains", v)}
+/>
 
-        <FilterGroup
-          title="Use Cases"
-          options={useCaseOptions}
-          selected={selectedUseCases}
-          toggle={(v) => toggleValue(v, selectedUseCases, setSelectedUseCases)}
-          getCount={(v) => getCountsForGroup("useCases", v)}
-        />
+<FilterGroup
+  title="Use Cases"
+  variant="usecase"
+  options={useCaseOptions}
+  selected={selectedUseCases}
+  toggle={(v) => toggleValue(v, selectedUseCases, setSelectedUseCases)}
+  getCount={(v) => getCountsForGroup("useCases", v)}
+/>
 
-        <FilterGroup
-          title="Platforms"
-          options={platformOptions}
-          selected={selectedPlatforms}
-          toggle={(v) => toggleValue(v, selectedPlatforms, setSelectedPlatforms)}
-          getCount={(v) => getCountsForGroup("platforms", v)}
-        />
+<FilterGroup
+  title="Platforms"
+  variant="platform"
+  options={platformOptions}
+  selected={selectedPlatforms}
+  toggle={(v) => toggleValue(v, selectedPlatforms, setSelectedPlatforms)}
+  getCount={(v) => getCountsForGroup("platforms", v)}
+/>
 
-        <FilterGroup
-          title="Data Sources"
-          options={dataSourceOptions}
-          selected={selectedDataSources}
-          toggle={(v) =>
-            toggleValue(v, selectedDataSources, setSelectedDataSources)
-          }
-          getCount={(v) => getCountsForGroup("dataSources", v)}
-        />
+<FilterGroup
+  title="Data Sources"
+  variant="datasource"
+  options={dataSourceOptions}
+  selected={selectedDataSources}
+  toggle={(v) =>
+    toggleValue(v, selectedDataSources, setSelectedDataSources)
+  }
+  getCount={(v) => getCountsForGroup("dataSources", v)}
+/>
 
         <button
           type="button"
