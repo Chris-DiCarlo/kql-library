@@ -19,6 +19,44 @@ const domainOptions = ["identity", "email", "endpoint", "network", "cloud"]
 const useCaseOptions = ["detection", "hunting", "triage", "investigation"]
 const platformOptions = ["sentinel", "defender", "entra", "zscaler", "m365"]
 
+function formatLabel(value: string) {
+  return value
+    .split(/[\s-]+/)
+    .map((part) => {
+      if (!part) return part
+      return part.charAt(0).toUpperCase() + part.slice(1)
+    })
+    .join(" ")
+}
+
+function Pill({
+  children,
+  active = false,
+}: {
+  children: React.ReactNode
+  active?: boolean
+}) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-3 py-1 text-sm leading-none transition ${
+        active
+          ? "border-[#8ea184] bg-[#314131] text-[#eef3e7]"
+          : "border-[#5f715e] bg-[#1a231b] text-[#d7e2ce]"
+      }`}
+    >
+      {children}
+    </span>
+  )
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#9cab91]">
+      {children}
+    </div>
+  )
+}
+
 function FilterGroup({
   title,
   options,
@@ -32,21 +70,11 @@ function FilterGroup({
 }) {
   return (
     <div>
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#9cab91]">
-        {title}
-      </h3>
+      <SectionLabel>{title}</SectionLabel>
       <div className="flex flex-wrap gap-2">
         {options.map((item) => (
           <button key={item} type="button" onClick={() => toggle(item)}>
-            <span
-              className={`px-3 py-1 text-sm rounded-full border capitalize transition ${
-                selected.includes(item)
-                  ? "bg-[#415540] text-[#eef3e7] border-[#70886e]"
-                  : "bg-[#1a221b] text-[#b8c3ad] border-[#445443] hover:bg-[#253027]"
-              }`}
-            >
-              {item}
-            </span>
+            <Pill active={selected.includes(item)}>{formatLabel(item)}</Pill>
           </button>
         ))}
       </div>
@@ -66,8 +94,9 @@ function CopyButton({ query }: { query: string }) {
 
   return (
     <button
+      type="button"
       onClick={handleCopy}
-      className="flex items-center gap-2 rounded-xl border border-[#556b57] bg-[#243025] px-3 py-2 text-sm text-[#eef3e7] hover:bg-[#314034]"
+      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#6d816d] bg-[#223024] px-4 text-sm font-medium text-[#eef3e7] transition hover:bg-[#2d3d2f]"
     >
       {copied ? <Check size={16} /> : <Copy size={16} />}
       {copied ? "Copied" : "Copy"}
@@ -83,7 +112,9 @@ export function QueryBrowser({ queries }: Props) {
   const [selectedDataSources, setSelectedDataSources] = useState<string[]>([])
 
   const dataSourceOptions = useMemo(() => {
-    return Array.from(new Set(queries.flatMap((q) => q.dataSources))).sort()
+    return Array.from(new Set(queries.flatMap((q) => q.dataSources))).sort(
+      (a, b) => a.localeCompare(b)
+    )
   }, [queries])
 
   function toggleValue(
@@ -113,6 +144,9 @@ export function QueryBrowser({ queries }: Props) {
         q.useCases.join(" "),
         q.platforms.join(" "),
         q.dataSources.join(" "),
+        q.mitreTechniques?.join(" ") ?? "",
+        q.author ?? "",
+        q.severity ?? "",
       ]
         .join(" ")
         .toLowerCase()
@@ -136,8 +170,7 @@ export function QueryBrowser({ queries }: Props) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
-      {/* FILTERS */}
-      <aside className="space-y-6 rounded-[28px] border border-white/10 bg-[#1c241d]/80 p-5 shadow-2xl">
+      <aside className="space-y-6 rounded-[28px] border border-white/10 bg-[#1a211b]/85 p-5 shadow-2xl">
         <FilterGroup
           title="Domains"
           options={domainOptions}
@@ -169,6 +202,7 @@ export function QueryBrowser({ queries }: Props) {
         />
 
         <button
+          type="button"
           onClick={() => {
             setSelectedDomains([])
             setSelectedUseCases([])
@@ -176,26 +210,25 @@ export function QueryBrowser({ queries }: Props) {
             setSelectedDataSources([])
             setSearch("")
           }}
-          className="text-sm text-[#9cab91] underline"
+          className="text-sm text-[#a8b69e] underline underline-offset-4"
         >
-          Clear filters
+          Clear Filters
         </button>
       </aside>
 
-      {/* RESULTS */}
       <section>
         <div className="relative mb-4">
           <Search className="absolute left-3 top-3.5 text-[#8f9b85]" size={16} />
           <Input
-            placeholder="Search queries..."
+            placeholder="Search queries, tags, platforms, or tables..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-11 rounded-2xl border-[#445443] bg-[#182018] pl-9 text-[#eef3e7]"
+            className="h-11 rounded-2xl border-[#4e614e] bg-[#182018] pl-9 text-[#eef3e7] placeholder:text-[#8f9b85]"
           />
         </div>
 
         <div className="mb-4 text-sm text-[#9cab91]">
-          {filtered.length} queries
+          {filtered.length} {filtered.length === 1 ? "Query" : "Queries"}
         </div>
 
         <Accordion type="single" collapsible className="space-y-3">
@@ -203,77 +236,91 @@ export function QueryBrowser({ queries }: Props) {
             <AccordionItem
               key={q.id}
               value={q.id}
-              className="rounded-2xl border border-white/10 bg-[#1a221b]/90 px-4"
+              className="rounded-2xl border border-[#5b6a5a] bg-[#202822] px-5 shadow-lg"
             >
               <AccordionTrigger className="hover:no-underline">
-                <div className="w-full text-left">
-                  <h2 className="text-lg font-semibold text-[#eef3e7]">
+                <div className="w-full pr-4 text-left">
+                  <h2 className="text-xl font-semibold text-[#eef3e7]">
                     {q.title}
                   </h2>
 
-                  <p className="mb-2 text-sm text-[#b8c3ad]">
+                  <p className="mt-2 mb-4 text-sm text-[#c0cdb7]">
                     {q.description}
                   </p>
 
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {q.domains.map((x) => (
-                      <span
-                        key={x}
-                        className="px-3 py-1 text-sm rounded-full border border-[#5f7a5f] bg-[#2f3f2f] text-[#dce7d2]"
-                      >
-                        {x}
-                      </span>
-                    ))}
-
-                    {q.useCases.map((x) => (
-                      <span
-                        key={x}
-                        className="px-3 py-1 text-sm rounded-full border border-[#4f624f] bg-[#1f2a23] text-[#b8c3ad]"
-                      >
-                        {x}
-                      </span>
-                    ))}
-
-                    {q.platforms.map((x) => (
-                      <span
-                        key={x}
-                        className="px-3 py-1 text-sm rounded-full border border-[#6c8a6b] bg-[#2a332b] text-[#cfe3c2]"
-                      >
-                        {x}
-                      </span>
-                    ))}
-
-                    {q.dataSources.map((x) => (
-                      <span
-                        key={x}
-                        className="px-3 py-1 text-sm rounded-full border border-[#4a5d4a] bg-[#101512] text-[#d7e5d0]"
-                      >
-                        {x}
-                      </span>
-                    ))}
+                  <div className="grid gap-3">
+                    <div>
+                      <SectionLabel>Summary</SectionLabel>
+                      <div className="flex flex-wrap gap-2">
+                        {q.domains.map((x) => (
+                          <Pill key={`${q.id}-domain-${x}`}>{formatLabel(x)}</Pill>
+                        ))}
+                        {q.useCases.map((x) => (
+                          <Pill key={`${q.id}-use-${x}`}>{formatLabel(x)}</Pill>
+                        ))}
+                        {q.platforms.map((x) => (
+                          <Pill key={`${q.id}-platform-${x}`}>{formatLabel(x)}</Pill>
+                        ))}
+                        {q.dataSources.map((x) => (
+                          <Pill key={`${q.id}-source-${x}`}>{x}</Pill>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </AccordionTrigger>
 
               <AccordionContent>
-                <div className="flex justify-between mb-3">
-                  <div className="flex flex-wrap gap-2">
-                    {q.tags.map((t) => (
-                      <span
-                        key={t}
-                        className="px-3 py-1 text-xs rounded-full border border-[#445443] text-[#a9b69c]"
-                      >
-                        {t}
-                      </span>
-                    ))}
+                <div className="space-y-5 pt-2">
+                  <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-start">
+                    <div className="space-y-4">
+                      {q.tags.length > 0 && (
+                        <div>
+                          <SectionLabel>Tags</SectionLabel>
+                          <div className="flex flex-wrap gap-2">
+                            {q.tags.map((tag) => (
+                              <Pill key={`${q.id}-tag-${tag}`}>
+                                {formatLabel(tag)}
+                              </Pill>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {q.mitreTechniques && q.mitreTechniques.length > 0 && (
+                        <div>
+                          <SectionLabel>MITRE</SectionLabel>
+                          <div className="flex flex-wrap gap-2">
+                            {q.mitreTechniques.map((mitre) => (
+                              <Pill key={`${q.id}-mitre-${mitre}`}>{mitre}</Pill>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {(q.severity || q.author) && (
+                        <div>
+                          <SectionLabel>Details</SectionLabel>
+                          <div className="flex flex-wrap gap-2">
+                            {q.severity && <Pill>{formatLabel(q.severity)}</Pill>}
+                            {q.author && <Pill>{q.author}</Pill>}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-start justify-start md:justify-end">
+                      <CopyButton query={q.query} />
+                    </div>
                   </div>
 
-                  <CopyButton query={q.query} />
+                  <div>
+                    <SectionLabel>KQL Query</SectionLabel>
+                    <pre className="overflow-x-auto rounded-2xl border border-[#344334] bg-[#0d120e] p-4 text-sm text-[#dfe8d5]">
+                      <code>{q.query}</code>
+                    </pre>
+                  </div>
                 </div>
-
-                <pre className="rounded-xl bg-[#0d120e] p-4 text-sm text-[#dfe8d5] overflow-x-auto">
-                  <code>{q.query}</code>
-                </pre>
               </AccordionContent>
             </AccordionItem>
           ))}
