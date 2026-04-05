@@ -2,17 +2,31 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import "./globals.css"
 
-export const metadata: Metadata = {
-  title: "KQL Library",
-  description: "Searchable KQL query library for detection and hunting",
+export const metadata = {
+  title: "Blutosec - Cybersecurity Detection Library",
+  description:
+    "Blutosec is an educational cybersecurity platform providing KQL queries, powershell scripts, detection engineering resources, and threat hunting techniques for security analysts and incident responders.",
+  keywords: [
+    "KQL",
+    "Powershell",
+    "Cybersecurity",
+    "Threat Hunting",
+    "Detection Engineering",
+    "SIEM",
+    "Sentinel",
+    "Incident Response"
+  ],
 }
 
 function TopNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#1b241d]/85 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-semibold tracking-wide text-[#e7eddc]">
-          KQL Library
+        <Link
+          href="/"
+          className="text-lg font-semibold tracking-wide text-[#e7eddc]"
+        >
+          Blutosec
         </Link>
 
         <nav className="flex items-center gap-3">
@@ -23,10 +37,22 @@ function TopNav() {
             Library
           </Link>
           <Link
-            href="/add-query"
+            href="/about"
             className="rounded-xl border border-[#556b57]/60 bg-[#2a362b]/70 px-4 py-2 text-sm text-[#e7eddc] transition hover:bg-[#334235]"
           >
-            Add Query
+            About
+          </Link>
+          <Link
+            href="/contact"
+            className="rounded-xl border border-[#556b57]/60 bg-[#2a362b]/70 px-4 py-2 text-sm text-[#e7eddc] transition hover:bg-[#334235]"
+          >
+            Contact
+          </Link>
+          <Link
+            href="/privacy-policy"
+            className="rounded-xl border border-[#556b57]/60 bg-[#2a362b]/70 px-4 py-2 text-sm text-[#e7eddc] transition hover:bg-[#334235]"
+          >
+            Privacy
           </Link>
         </nav>
       </div>

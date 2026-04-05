@@ -11,14 +11,14 @@ export default function HomePage() {
           Detection Library
         </p>
 
-        <h1 className="text-4xl font-bold tracking-tight text-[#eef3e7] sm:text-5xl">
-          Searchable KQL Query Library
+      <div className="mb-8 rounded-2xl border border-[#4e614e] bg-[#182018] p-6">
+        <h1 className="text-3xl font-bold text-[#eef3e7] mb-2">
+          Cybersecurity Detection Library & Threat Hunting Knowledge Base
         </h1>
-
-        <p className="mt-4 max-w-3xl text-base text-[#b8c3ad] sm:text-lg">
-          Browse KQL queries by domain, use case, platform, tags, and data
-          source. Built for identity, email, endpoint, network, and cloud
-          investigations.
+        <p className="text-[#c0cdb7]">
+          Blutosec is an educational platform focused on cybersecurity detection engineering,
+          incident response, and threat hunting. This library provides curated KQL queries, powershell scripts and
+          techniques used by security analysts to identify, investigate, and respond to threats in Defender live response, and advanced hunting.
         </p>
       </div>
 
