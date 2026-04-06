@@ -1,0 +1,27 @@
+{
+  "id": "user-web-logs",
+  "title": "User Web Logs",
+  "description": "User web activity timeline from Zscaler logs showing browsing history, recent details and session context for investigation and threat hunting. ",
+  "query": "let user= \"user@company.com\";\nlet startTime ag(1d);//datetime(2026-03-1 00:00:00);\nlet endTime =now)://datetime(2026-03-31 23:59:59);\nCommonSecurityLog\n| where TimeGenerated between (startTime ..endTime)\n| where DeviceVendor - \"Zscaler\" \n| where DeviceProduct NSSWeblog\" \n| where SourceUserName =~ user\n| extend RefererHost = extract@\"erefererhost=([^; ]+)\", 1, AdditionalExtensions)\n| extend Uripath - extract@\"eurIpath=([^;]+)\", 1, AdditionalExtensions)\n| extend UrlCategory = extract@\"urlsupercat=([^;]+)\", 1, AdditionalExtensions)\n| project\nTimeGenerated, SourceUserName, SourceIP, DestinationHostName, RequestURL, UrlPath,\nRefererHost,Urlcategory,RequestMethod, DeviceAction, RequestClientApplication, SentBytes,\nReceivedBytes\n| order by TimeGenerated asc\n",
+  "contentTypes": [
+    "KQL"
+  ],
+  "domains": [
+    "Network"
+  ],
+  "useCases": [
+    "Investigation"
+  ],
+  "platforms": [
+    "Defender",
+    "Sentinel",
+    "Zscaler"
+  ],
+  "dataSources": [
+    "Zscaler"
+  ],
+  "tags": [
+    "CommonSecurityLog"
+  ],
+  "severity": "low"
+}
